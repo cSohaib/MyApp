@@ -1,0 +1,28 @@
+﻿@model MyApp.Models.User
+
+@{
+    ViewBag.Title = "Account";
+}
+
+<h2>Account</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+
+        <dt>Firstname</dt>
+        <dd>@Model.Firstname</dd>
+
+        <dt>Lastname</dt>
+        <dd>@Model.Lastname</dd>
+
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+
+    </dl>
+
+    <a href="/Users/Edit">Edit infos</a>
+    <br />
+    <a href="/Users/ChangePassword">Change password</a>
+
+</div>

@@ -1,0 +1,23 @@
+﻿@if (Session["UserId"] != null)
+{
+    using (Html.BeginForm("LogOff", "Users", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a href="/Users/Account">Account</a>
+            </li>
+            <li>
+                <a href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+            </li>
+        </ul>
+    }
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="/Users/Register">Register</a></li>
+        <li><a href="/Users/Login">Login</a></li>
+    </ul>
+}

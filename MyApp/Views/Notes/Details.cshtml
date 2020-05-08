@@ -1,0 +1,16 @@
+﻿@model MyApp.Models.NoteViewModel
+
+@{
+    ViewBag.Title = @Model.Title;
+}
+
+<h2>@Model.Title</h2>
+<div class="row">
+    <p class="text-justify">
+        @Model.Content
+    </p>
+</div>
+
+<div>
+    <a href="/Notes/">Back to List</a>
+</div>
