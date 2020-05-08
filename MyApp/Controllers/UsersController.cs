@@ -20,7 +20,7 @@ namespace MyApp.Controllers
             if (Session["UserId"] is null)
                 return RedirectToAction("Login", "Users");
 
-            var user = db.Users.First(u => u.UserId == (int)Session["UserId"]);
+            var user = db.GetUserById((int)Session["UserId"]);
             return View(user);
         }
 
@@ -39,16 +39,14 @@ namespace MyApp.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            User user;
-            try
-            {
-                user = db.Users.First(u => u.Email == model.Email && u.Password == model.Password);
-            }
-            catch
+            User user = db.Login(model.Email, model.Password);
+
+            if (user is null)
             {
                 ModelState.AddModelError("", "Wrong username or password");
                 return View(model);
             }
+
             Session["UserId"] = user.UserId;
             return RedirectToAction("Index", "Home");
         }
@@ -58,7 +56,7 @@ namespace MyApp.Controllers
             if (Session["UserId"] is null)
                 return RedirectToAction("Index", "Home");
 
-            var user = db.Users.First(u => u.UserId == (int)Session["UserId"]);
+            var user = db.GetUserById((int)Session["UserId"]);
             return View(user);
         }
 
@@ -72,7 +70,7 @@ namespace MyApp.Controllers
             if (!ModelState.IsValid)
                 return View(user);
 
-            var usr = db.Users.First(u => u.UserId == (int)Session["UserId"]);
+            var usr = db.GetUserById((int)Session["UserId"]);
             usr.Firstname = user.Firstname;
             usr.Lastname = user.Lastname;
             return RedirectToAction("Account");
@@ -93,7 +91,7 @@ namespace MyApp.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            if (db.Users.Where(u => u.Email == model.Email).Count() > 0)
+            if (db.IsEmailAlreadyRegistered(model.Email))
             {
                 ModelState.AddModelError("", "Email already registered");
                 return View(model);
@@ -101,17 +99,15 @@ namespace MyApp.Controllers
 
             User user = new User
             {
-                UserId = MyAppContext.NewUserId,
                 Firstname = model.Firstname,
                 Lastname = model.Lastname,
                 Email = model.Email,
                 Password = model.Password
             };
-            db.Users.Add(user);
+
+            db.Save(user);
             Session["UserId"] = user.UserId;
             return RedirectToAction("Account", "Users");
-
-
         }
 
         public ActionResult ChangePassword()
@@ -129,7 +125,7 @@ namespace MyApp.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = db.Users.First(u => u.UserId == (int)Session["UserId"]);
+            var user = db.GetUserById((int)Session["UserId"]);
             if (user.Password != model.OldPassword)
             {
                 ModelState.AddModelError("", "Wrong password");

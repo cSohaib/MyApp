@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Web;
+﻿using MyApp.Models;
 using System.Web.Mvc;
-using MyApp.Models;
 
 namespace MyApp.Controllers
 {
@@ -22,13 +12,14 @@ namespace MyApp.Controllers
             if (Session["UserId"] is null)
                 return RedirectToAction("Login", "Users");
 
-            var currentUserNotes = db.Notes.Where(a => a.User.UserId == (int)Session["UserId"]).ToList();
-            return View(currentUserNotes);
+            int currentUserId = (int)Session["UserId"];
+            var notes = db.GetNotesByUserId(currentUserId);
+            return View(notes);
         }
 
         public ActionResult Details(int id)
         {
-            Note note = db.Notes.FirstOrDefault(a => a.NoteId == id);
+            Note note = db.GetNoteById(id);
 
             if (note is null)
                 return HttpNotFound();
@@ -57,12 +48,12 @@ namespace MyApp.Controllers
             {
                 Note note = new Note()
                 {
-                    NoteId = MyAppContext.NewNoteId,
                     Content = model.Content,
                     Title = model.Title,
-                    User = db.Users.First(u => u.UserId == (int)Session["UserId"])
+                    User = db.GetUserById((int)Session["UserId"])
                 };
-                db.Notes.Add(note);
+
+                db.Save(note);
                 return RedirectToAction("Index");
             }
 
@@ -74,7 +65,7 @@ namespace MyApp.Controllers
             if (Session["UserId"] is null)
                 return RedirectToAction("Login", "Users");
 
-            Note note = db.Notes.FirstOrDefault(a => a.NoteId == id);
+            Note note = db.GetNoteById(id);
 
             if (note is null || note.User.UserId != (int)Session["UserId"])
                 return HttpNotFound();
@@ -92,7 +83,7 @@ namespace MyApp.Controllers
 
             if (ModelState.IsValid)
             {
-                Note note = db.Notes.FirstOrDefault(a => a.NoteId == model.Id);
+                Note note = db.GetNoteById(model.Id);
                 note.Content = model.Content;
                 note.Title = model.Title;
 
@@ -106,7 +97,7 @@ namespace MyApp.Controllers
             if (Session["UserId"] is null)
                 return RedirectToAction("Login", "Users");
 
-            Note note = db.Notes.FirstOrDefault(a => a.NoteId == id);
+            Note note = db.GetNoteById(id);
 
             if (note is null || note.User.UserId != (int)Session["UserId"])
                 return HttpNotFound();
@@ -122,8 +113,7 @@ namespace MyApp.Controllers
             if (Session["UserId"] is null)
                 return RedirectToAction("Login", "Users");
 
-            Note note = db.Notes.First(a => a.NoteId == id);
-            db.Notes.Remove(note);
+            db.DeleteNote(id);
             return RedirectToAction("Index");
         }
     }

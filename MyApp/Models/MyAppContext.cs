@@ -12,9 +12,7 @@ namespace MyApp.Models
         private static List<Note> notes = new List<Note>();
 
         private static int lastNoteId = 0;
-        public static int NewNoteId => lastNoteId++;
         private static int lastUserId = 0;
-        public static int NewUserId => lastUserId++;
 
         // You can add custom code to this file. Changes will not be overwritten.
         // 
@@ -27,7 +25,47 @@ namespace MyApp.Models
         {
         }
 
-        public List<User> Users { get => users; set => users = value; }
-        public List<Note> Notes { get => notes; set => notes = value; }
+        public Note GetNoteById(int noteId)
+        {
+            return notes.FirstOrDefault(a => a.NoteId == noteId);
+        }
+
+        public User GetUserById(int userId)
+        {
+            return users.FirstOrDefault(u => u.UserId == userId);
+        }
+
+        public IEnumerable<Note> GetNotesByUserId(int userId)
+        {
+            return notes.Where(a => a.User.UserId == userId).ToList();
+        }
+
+        public void Save(Note note)
+        {
+            note.NoteId = ++lastNoteId;
+            notes.Add(note);
+        }
+
+        public void Save(User user)
+        {
+            user.UserId = ++lastUserId;
+            users.Add(user);
+        }
+
+        public bool IsEmailAlreadyRegistered(string email)
+        {
+            return users.Where(u => u.Email == email).Count() > 0;
+        }
+
+        public User Login(string email, string password)
+        {
+            return users.FirstOrDefault(u => u.Email == email && u.Password == password);
+        }
+
+        internal void DeleteNote(int id)
+        {
+            Note note = notes.First(a => a.NoteId == id);
+            notes.Remove(note);
+        }
     }
 }
